@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:newsappp/controller/applenewscontroller.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:newsappp/controller/bookmarkScreencontroller.dart';
-import 'package:newsappp/controller/buisnessController.dart';
-import 'package:newsappp/controller/localnewsController.dart';
-import 'package:newsappp/controller/techcontroller.dart';
-import 'package:newsappp/views/globalwidget/globalnewswidget.dart';
-import 'package:newsappp/views/webview/webview.dart';
+import 'package:newsappp/controller/homeScreenController.dart';
+import 'package:newsappp/controller/homeScreenController.dart';
+import 'package:newsappp/views/homeScreen/newswidget.dart';
 import 'package:provider/provider.dart';
+import 'package:newsappp/controller/homeScreenController.dart';
+
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
@@ -16,198 +16,238 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
- 
-      
-      await context.read<Homescreencontroller>().getnews();
-      await context.read<Techcontroller>().techget();
-
-        await context.read<Applenewscontroller>().appleget();
-         await context.read<Localnewscontroller>().localget();
-
-    });
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+   
+      await context.read<homeScreenController>().Newsget();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final techController = context.watch<homeScreenController>();
 
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: Icon(Icons.dehaze),
-          title: Text("NEWS Today",
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "NEWS Today",
           style: TextStyle(
             color: Colors.black,
-            fontWeight: FontWeight.bold
-          ),),
-          actions: [
-            Icon(
-              Icons.notifications,
-              size: 30,
-            ),
-            SizedBox(width: 20),
-          ],
-          bottom: TabBar(
-            
-            labelColor: Colors.black,
-            labelStyle: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-            unselectedLabelColor: Colors.black,
-            dividerHeight: 0,
-            indicatorSize: TabBarIndicatorSize.tab,
-            indicatorColor: Colors.black,
-            // indicator: BoxDecoration(
-            //   color: Colors.black,
-            //   borderRadius: BorderRadius.circular(22),
-               
-            // ),
-            tabs: [
-            Tab(
-              text: "Business",
-            ),
-            Tab(
-              text: "Tech",
-            ),
-            
-            Tab(
-              text: "Mobile",
-            ),
-            Tab(
-              text: "local",
-            )
-          ]),
-          backgroundColor: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colors.white,
-        body:TabBarView(children: [
-
-// buisness news
-               ListView.separated(
-                         itemBuilder: (context, index) {
-                           final buisnessnews =
-                context.watch<Homescreencontroller>().articles[index];
-                           return GestureDetector(
-                            onTap: () {
-                                Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Webview(
-              url:buisnessnews.url ?? '',
-               )));
-                            },
-                             child: newswidget(
-                               title: buisnessnews.title.toString(),
-                                            description: buisnessnews.description.toString(),
-                                             image:buisnessnews.urlToImage.toString(),
-                                              date: buisnessnews.publishedAt.toString(), 
-                                              InkWellbookmarked: () async { 
-                                               await context.read<Bookmarkscreencontroller>().addNewsData(buisnessnews);
-                                               await context.read<Bookmarkscreencontroller>().getAllNewsData();
-                                               
-                                               },  iccon:Icon(Icons.bookmark_outline),
-                                            
-                                               ),
-                           );
-                             },
-                         itemCount: context.watch<Techcontroller>().techarticles.length,
-                         separatorBuilder: (context, index) => SizedBox(),
-                       ),
-
-
-
-// tech news
-       ListView.separated(
-          itemBuilder: (context, index) {
-            final technews =
-                context.watch<Techcontroller>().techarticles[index];
-            return newswidget(
-              title: technews.title.toString(),
-               description: technews.description.toString(),
-                image: technews.urlToImage.toString(),
-                 date: technews.publishedAt.toString(), 
-                 InkWellbookmarked: () async { 
-                  await context.read<Bookmarkscreencontroller>().addNewsData(technews);
-                  await context.read<Bookmarkscreencontroller>().getAllNewsData();
-                  },
-                iccon:Icon(Icons.bookmark_outline),
-               
-                  );
-              },
-          itemCount: context.watch<Techcontroller>().techarticles.length,
-          separatorBuilder: (context, index) => SizedBox(
-           
-          ),
-        ),
-
-
-
-// apple related news
-
-              ListView.separated(
-          itemBuilder: (context, index) {
-            final applenews =
-                context.watch<Applenewscontroller>().applenewsarticles[index];
-            return newswidget(
-              title:applenews.title.toString(),
-               description:applenews.description.toString(),
-                image: applenews.urlToImage.toString(),
-                 date:applenews.publishedAt.toString(), 
-                 InkWellbookmarked: () async { 
-                  await context.read<Bookmarkscreencontroller>().addNewsData(applenews);
-                  await context.read<Bookmarkscreencontroller>().getAllNewsData();
-                  },
-                  iccon:Icon(Icons.bookmark_outline),
-               
-                  );
-              },
-          itemCount: context.watch<Applenewscontroller>().applenewsarticles.length,
-          separatorBuilder: (context, index) => SizedBox(
-           
-          ),
-        ),
-
-// local news
-
-              ListView.separated(
-          itemBuilder: (context, index) {
-            final localnews =
-                context.watch<Localnewscontroller>().localarticles[index];
-            return newswidget(
-              title: localnews.title.toString(),
-               description: localnews.description.toString(),
-                image: localnews.urlToImage.toString(),
-                 date: localnews.publishedAt.toString(), 
-                 InkWellbookmarked: () async { 
-                  await context.read<Bookmarkscreencontroller>().addNewsData(localnews);
-                  await context.read<Bookmarkscreencontroller>().getAllNewsData();
-                  },
-                   iccon:Icon(Icons.bookmark_outline),
-               
-                  );
-              },
-          itemCount: context.watch<Localnewscontroller>().localarticles.length,
-          separatorBuilder: (context, index) => SizedBox(
-           
-          ),
-        ),
-
-
-        
-
-
-        
-        ]),
+        actions: const [
+          Icon(Icons.notifications, size: 30),
+          SizedBox(width: 20),
+        ],
       ),
+        backgroundColor: Colors.white,
+      body:Column(
+       
+            children: [
+             
+                      SingleChildScrollView(
+          controller: _scrollController,
+          scrollDirection: Axis.horizontal,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: List.generate(
+                techController.NewsList.length,
+                (index) => Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: InkWell(
+                    onTap: () async {
+                      await techController.onNewsSelection(index);
+
+                      // Scroll the clicked container to the center
+                      _scrollController.animateTo(
+                        (index * 80.0) - (MediaQuery.of(context).size.width / 5) + 45,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeIn,
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 25),
+                      height: 45,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: techController.selectedNewsIndex == index
+                            ? Colors.black
+                            : Colors.grey.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        techController.NewsList[index].toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: techController.selectedNewsIndex == index
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+             
+// Listview.separated
+              
+               Consumer<homeScreenController>(builder: (context, homeScreenController, child) => 
+      homeScreenController.isloading?Center(
+        child:
+         SizedBox(
+          width: 50,
+          height: 50,
+           child: LoadingIndicator(
+               indicatorType: Indicator.lineScale, /// Required, The loading type of the widget
+               colors: const [Colors.black],       /// Optional, The color collections
+               strokeWidth: 2,                     /// Optional, The stroke of the line, only applicable to widget which contains line
+               backgroundColor: Colors.white,      /// Optional, Background of the widget
+               pathBackgroundColor: Colors.blue  
+                /// Optional, the stroke backgroundColor
+           ),
+         ))
+          :
+              Expanded(
+                child: homeScreenController.newsarticles.isEmpty
+                    ?  Center(child: Text("No articles available"))
+                    : ListView.separated(
+                        itemBuilder: (context, index) {
+                          final article = homeScreenController.newsarticles[index];
+                          return
+                            newswidget(
+                              title: article.title ?? "No Title",
+                              description: article.description ?? "No Description",
+                              image: article.urlToImage ?? "",
+                              date: article.publishedAt.toString(), 
+                                InkWellbookmarked: () async { 
+                      await context.read<Bookmarkscreencontroller>().addNewsData(article);
+                      await context.read<Bookmarkscreencontroller>().getAllNewsData();
+                       
+                                 }, 
+                                  iccon:   Icon(Icons.bookmark_outline), 
+                                 content:article.content??"no content" ,
+                                 author:article.author??"no author",
+                                  url: article.url??"no url", 
+                                  onpress2: () async {  
+                                      await context.read<Bookmarkscreencontroller>().removeNewsData(
+                                        article.title??"null"
+                                      );
+                                  }, 
+                             
+                            );
+                        },
+                          
+                        itemCount: homeScreenController.newsarticles.length,
+                        separatorBuilder: (context, index) => const SizedBox(
+                        
+                        ),
+                      ),
+              ),
+               ),
+            ],
+          ),
+   
+      
     );
   }
 }
+
+
+// // tech news
+//        ListView.separated(
+//           itemBuilder: (context, index) {
+//             final technews =
+//                 context.watch<Techcontroller>().techarticles[index];
+//             return newswidget(
+//               title: technews.title.toString(),
+//                description: technews.description.toString(),
+//                 image: technews.urlToImage.toString(),
+//                  date: technews.publishedAt.toString(), 
+//                  InkWellbookmarked: () async { 
+//                   await context.read<Bookmarkscreencontroller>().addNewsData(technews);
+//                   await context.read<Bookmarkscreencontroller>().getAllNewsData();
+//                   },
+//                 iccon:Icon(Icons.bookmark_outline),
+               
+//                   );
+//               },
+//           itemCount: context.watch<Techcontroller>().techarticles.length,
+//           separatorBuilder: (context, index) => SizedBox(
+           
+//           ),
+//         ),
+
+
+
+// // apple related news
+
+//               ListView.separated(
+//           itemBuilder: (context, index) {
+//             final applenews =
+//                 context.watch<Applenewscontroller>().applenewsarticles[index];
+//             return newswidget(
+//               title:applenews.title.toString(),
+//                description:applenews.description.toString(),
+//                 image: applenews.urlToImage.toString(),
+//                  date:applenews.publishedAt.toString(), 
+//                  InkWellbookmarked: () async { 
+//                   await context.read<Bookmarkscreencontroller>().addNewsData(applenews);
+//                   await context.read<Bookmarkscreencontroller>().getAllNewsData();
+//                   },
+//                   iccon:Icon(Icons.bookmark_outline),
+               
+//                   );
+//               },
+//           itemCount: context.watch<Applenewscontroller>().applenewsarticles.length,
+//           separatorBuilder: (context, index) => SizedBox(
+           
+//           ),
+//         ),
+
+// // local news
+
+//               ListView.separated(
+//           itemBuilder: (context, index) {
+//             final localnews =
+//                 context.watch<Localnewscontroller>().localarticles[index];
+//             return newswidget(
+//               title: localnews.title.toString(),
+//                description: localnews.description.toString(),
+//                 image: localnews.urlToImage.toString(),
+//                  date: localnews.publishedAt.toString(), 
+//                  InkWellbookmarked: () async { 
+//                   await context.read<Bookmarkscreencontroller>().addNewsData(localnews);
+//                   await context.read<Bookmarkscreencontroller>().getAllNewsData();
+//                   },
+//                    iccon:Icon(Icons.bookmark_outline),
+               
+//                   );
+//               },
+//           itemCount: context.watch<Localnewscontroller>().localarticles.length,
+//           separatorBuilder: (context, index) => SizedBox(
+           
+//           ),
+//         ),
+
+
+        
+
+
+        
+//       ),
+//     );
+//   }
+// }
 
 
 

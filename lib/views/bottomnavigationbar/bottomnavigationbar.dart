@@ -1,7 +1,7 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:newsappp/controller/bookmarkScreencontroller.dart';
-import 'package:newsappp/controller/buisnessController.dart';
+
 import 'package:newsappp/views/bookmarkScreen/bookmarkScre.dart';
 import 'package:newsappp/views/homeScreen/homescreen.dart';
 import 'package:newsappp/views/profileScreen/profileScreen.dart';
@@ -21,7 +21,7 @@ class _Bottomnavigationbar1State extends State<Bottomnavigationbar1> {
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
      await context.read<Bookmarkscreencontroller>().initDb();
-    await  context.read<Homescreencontroller>().getnews();
+    
     },);
     super.initState();
   }

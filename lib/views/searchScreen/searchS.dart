@@ -1,9 +1,10 @@
 
 import 'package:flutter/material.dart';
-import 'package:newsappp/controller/applenewscontroller.dart';
-
-import 'package:newsappp/controller/techcontroller.dart';
-import 'package:newsappp/views/globalwidget/globalnewsLatest.dart';
+import 'package:newsappp/controller/bookmarkScreencontroller.dart';
+import 'package:newsappp/controller/homeScreenController.dart';
+import 'package:newsappp/views/selectednewsScreen/selectednewsScreeen.dart';
+import 'package:newsappp/views/searchScreen/latestnewswidget.dart';
+import 'package:newsappp/views/searchScreen/searchedScreen.dart';
 import 'package:provider/provider.dart';
 
 class Searchs extends StatefulWidget {
@@ -14,48 +15,123 @@ class Searchs extends StatefulWidget {
 }
 
 class _SearchsState extends State<Searchs> {
+    final TextEditingController searchController = TextEditingController();
+  bool isSearchClick = false;
+  String searchText = "";
+  List<String> filteredItems = [];
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Fetch the news articles once the widget is rendered
-      await context.read<Techcontroller>().techget();
+      await context.read<homeScreenController>().Newsget();
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final techController = context.watch<Techcontroller>();
-    final techArticles = techController.techarticles;
+    final techController = context.watch<homeScreenController>();
+    // final techArticles = techController.newsarticles;
+       final allArticles = techController.newsarticles;
+      
+
+      // Filter for latest news (excluding Sports - index 5)
+  final latestNews = techController.selectedNewsIndex != 5 ? allArticles : [];
+
+  final newsList = context.watch<homeScreenController>().NewsList;
+
+    if (filteredItems.isEmpty) {
+      filteredItems = List.from(newsList);
+    }
+
+    // Search filter logic
+    void onSearchChanged(String value) {
+      setState(() {
+        searchText = value;
+        if (searchText.isEmpty) {
+          filteredItems.clear(); // Clear filtered items when search text is empty
+        } else {
+          filteredItems = newsList
+              .where((news) =>
+                  news.toLowerCase().contains(searchText.toLowerCase()))
+              .toList();
+        }
+           });
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Container(
-          height: 40,
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(20),
+         title: isSearchClick
+            ? Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade400,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: TextField(
+                  controller: searchController,
+                  onChanged: onSearchChanged,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.fromLTRB(16, 2, 16, 12),
+                    hintStyle: const TextStyle(
+                      color: Colors.black,
+                    ),
+                    border: InputBorder.none,
+                    hintText: "Search...",
+                  ),
+                ),
+              )
+            : const Text("Search"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                isSearchClick = !isSearchClick;
+                if (!isSearchClick) {
+                  searchController.clear();
+                  searchText = "";
+                  filteredItems=List.from(newsList);  // Reset filtered list
+                }
+              });
+            },
+            icon: Icon(isSearchClick ? Icons.close : Icons.search),
           ),
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: "Search",
-              hintStyle: TextStyle(color: Colors.black.withOpacity(0.5)),
-              suffixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ),
-          ),
-        ),
+        ],
+       
         backgroundColor: Colors.white,
       ),
       backgroundColor: Colors.white,
-      body:  SingleChildScrollView(
+      body:  searchText.isNotEmpty
+          ? ListView.builder(
+        itemCount: filteredItems.length,
+        itemBuilder: (context, index) {
+          final selectedItem = filteredItems[index];
+          return ListTile(
+            title: Text(
+              selectedItem,
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            onTap: () {
+              // Navigate to details screen on item tap
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Searchedscreen(searchQuery: selectedItem),
+                ),
+              );
+            },
+          );
+        },
+      )
+          :
+       SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                    
-                //  Popular tags
+   //  Popular tags
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 21,),
                     child: Row(
@@ -261,26 +337,39 @@ class _SearchsState extends State<Searchs> {
                       ],
                     ),
                   ),
-              
-              
                   SizedBox(height: 10),
-         // Listview Seperated card
+
+
+ // Listview Seperated card
                   SizedBox(
                     height: 250,
                     child: ListView.separated(
                       scrollDirection: Axis.horizontal,
-                      itemCount: techArticles.length,
+                      itemCount: latestNews.length,
                       separatorBuilder: (context, index) => SizedBox(width: 8),
                       itemBuilder: (context, index) {
-                        final article = techArticles[index];
+                       final article = latestNews[index];
                         return latestnewswidget(title: article.title??"",
                          image: article.urlToImage??"",
                           date: article.publishedAt.toString(), 
-                          author: article.author??"");
+                          author: article.author??"",
+                           description: context.watch<homeScreenController>().newsarticles[index].description??"null",
+                            content: context.watch<homeScreenController>().newsarticles[index].content??"null",
+                             onpress: () async {
+                                await context.read<Bookmarkscreencontroller>().addNewsData(article);
+                      await context.read<Bookmarkscreencontroller>().getAllNewsData();
+                       
+                             }, url: article.url,
+                              onpress2: () async { 
+                                 await context.read<Bookmarkscreencontroller>().removeNewsData(article.title);
+                              },);
                       },
                     ),
                   ),
                    Divider(),
+
+
+
                
    // recomendation topic
                  Padding(
@@ -311,71 +400,106 @@ class _SearchsState extends State<Searchs> {
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder:(context, index) {
-                  final mobilenews=context.read<Applenewscontroller>().applenewsarticles;
+                  final mobilenews=context.read<homeScreenController>().newsarticles;
+                 
                    return   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
                     child: Column(
-                            children: [
-                              Container(
-                                height: 120,
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(8.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                              
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          mobilenews[index].title??"",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 10),
-                       
-                            Text(
-                              mobilenews[index].author??"no author",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
+     GestureDetector(
+  onTap: () {
+    print("GestureDetector tapped");
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Selectednewsscreeen(
+          image: mobilenews[index].urlToImage ?? "null",
+          title: mobilenews[index].title ?? "null",
+          description: mobilenews[index].description ?? "null",
+          onpress: () async {
+                      await context.read<Bookmarkscreencontroller>().addNewsData(mobilenews[index]);
+                      await context.read<Bookmarkscreencontroller>().getAllNewsData();
+          },
+          content: mobilenews[index].content ?? "null",
+          author: mobilenews[index].author ?? "null",
+          url: mobilenews[index].url ?? "null", 
+          onpress2: () async {
+              await context.read<Bookmarkscreencontroller>().removeNewsData(mobilenews[index].title??"null");
+            },
+        ),
+      ),
+    );
+  },
+          child: Container(
+                                  height: 120,
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            mobilenews[index].title??"",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
                             ),
-                        
-                      
-                      ],
-                    ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 10),
+                         
+                              Row(
+                                children: [
+                                  Text(
+                                    mobilenews[index].author??"no author",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.grey,
                                     ),
-                                    const SizedBox(width: 10),
-                                    Container(
-                    height: 100,
-                    width: 100,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                           borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        fit: BoxFit.cover,                      
-                        image: 
-                      NetworkImage(context.read<Applenewscontroller>().applenewsarticles[index].urlToImage??"no image")),
-                    ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  Icon(
+                                  Icons.check_circle,
+                           color: Colors.blue,
+                              size: 16,
                               ),
+                                ],
+                              ),
+                          
+                        
+                        ],
+                      ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Container(
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                             borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          fit: BoxFit.cover,                      
+                          image: 
+                        NetworkImage(context.read<homeScreenController>().newsarticles[index].urlToImage??"no image")),
+                      ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+        ),
                             ],
                           ),
                   );
-                 }, separatorBuilder: (context, index) => SizedBox(), itemCount:context.read<Applenewscontroller>().applenewsarticles.length )
+                 }, separatorBuilder: (context, index) => SizedBox(), itemCount:context.read<homeScreenController>().newsarticles.length )
                 
                  
                 ],

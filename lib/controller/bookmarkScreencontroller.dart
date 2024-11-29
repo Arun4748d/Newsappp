@@ -17,7 +17,7 @@ class Bookmarkscreencontroller with ChangeNotifier {
     }
 
     final String path = await getDatabasesPath();
-    final String dbPath = join(path, 'bookmark5.db');
+    final String dbPath = join(path, 'bookmark7.db');
 
     database = await openDatabase(
       dbPath,
@@ -30,6 +30,9 @@ class Bookmarkscreencontroller with ChangeNotifier {
             title TEXT,
             description TEXT,
             image TEXT,
+            url TEXT,
+            content TEXT,
+            author TEXT,
             UNIQUE(title, description) -- Prevent duplicates
           )
           ''',
@@ -42,11 +45,14 @@ class Bookmarkscreencontroller with ChangeNotifier {
 
   Future<void> addNewsData(Article selectedarticle) async {
     await database.rawInsert(
-      'INSERT OR IGNORE INTO Saved(title, description, image) VALUES(?, ?, ?)',
+      'INSERT OR IGNORE INTO Saved(title, description, image, url, content, author) VALUES(?, ?, ?, ?, ?, ?)',
       [
         selectedarticle.title,
         selectedarticle.description,
         selectedarticle.urlToImage,
+        selectedarticle.url,
+        selectedarticle.content,
+        selectedarticle.author,
       ],
     );
     notifyListeners();
@@ -60,12 +66,25 @@ class Bookmarkscreencontroller with ChangeNotifier {
 }
 
 
-  Future<void> removeNewsData(String title) async {
-     final normalizedTitle = title.trim();
-    await database.rawDelete('DELETE FROM Saved WHERE title = ?', [normalizedTitle]);
-     await getAllNewsData();
-    notifyListeners();
+ Future<void> removeNewsData(String title) async {
+  // Fetch the 'id' of the record you want to delete by title
+  final result = await database.rawQuery('SELECT id FROM Saved WHERE title = ?', [title]);
+  
+  if (result.isNotEmpty) {
+    // If a matching title is found, delete by id
+    final id = result[0]['id']; // Get the id of the record
+    
+    // Perform deletion based on 'id'
+    await database.rawDelete('DELETE FROM Saved WHERE id = ?', [id]);
+
+    // Reload the saved news data
+    await getAllNewsData();
+  } else {
+    print("No record found with the given title.");
   }
+  notifyListeners();
+}
+
 }
 
 

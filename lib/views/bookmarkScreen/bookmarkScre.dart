@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:newsappp/controller/bookmarkScreencontroller.dart';
+import 'package:newsappp/controller/homeScreenController.dart';
+import 'package:newsappp/views/bookmarkScreen/deletescreenwidget.dart';
 
-import 'package:newsappp/views/globalwidget/globalnewswidget.dart';
+
 import 'package:provider/provider.dart';
 
 
@@ -52,21 +54,25 @@ class _BookmarkscreState extends State<Bookmarkscre> {
       backgroundColor: Colors.white,
       body:    ListView.separated(
           itemBuilder: (context, index) {
-            return newswidget(
+            final bookmark=context.watch<Bookmarkscreencontroller>().savednews[index];
+            return Deletescreenwidget(
               title:context.watch<Bookmarkscreencontroller>().savednews[index]["title"]??"",
                description: context.watch<Bookmarkscreencontroller>().savednews[index]["description"]??"",
                 image:context.watch<Bookmarkscreencontroller>().savednews[index]["image"]??"",
-                 date:"", 
-                 InkWellbookmarked: () async { 
-                  await context.read<Bookmarkscreencontroller>().removeNewsData(
-                   ( context.watch<Bookmarkscreencontroller>().savednews[index]["title"]??"").trim(),
-                    
-                  );
-                  
+              
+                 InkWellbookmarked: () async {      
+                  await context.read<Bookmarkscreencontroller>().removeNewsData(bookmark["title"]);
+                      // await context.read<Bookmarkscreencontroller>().getAllNewsData();
                   
                   
                   }, 
-                   iccon:Icon(Icons.delete,color: Colors.red,),
+                   iccon:Icon(Icons.delete,color: Colors.red,), 
+                   url: bookmark["url"] ?? "",
+                    content: bookmark["content"]??"",
+                     author: bookmark["author"]??"", 
+                     onpress2: () async {
+                        await context.read<Bookmarkscreencontroller>().removeNewsData(bookmark["title"]);
+                       },
                
                   );
               },
