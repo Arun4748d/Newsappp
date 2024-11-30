@@ -57,7 +57,7 @@ class _BookmarkscreState extends State<Bookmarkscre> {
             final bookmark=context.watch<Bookmarkscreencontroller>().savednews[index];
             return Deletescreenwidget(
               title:context.watch<Bookmarkscreencontroller>().savednews[index]["title"]??"",
-               description: context.watch<Bookmarkscreencontroller>().savednews[index]["description"]??"",
+               
                 image:context.watch<Bookmarkscreencontroller>().savednews[index]["image"]??"",
               
                  InkWellbookmarked: () async {      
@@ -72,7 +72,8 @@ class _BookmarkscreState extends State<Bookmarkscre> {
                      author: bookmark["author"]??"", 
                      onpress2: () async {
                         await context.read<Bookmarkscreencontroller>().removeNewsData(bookmark["title"]);
-                       },
+                       }, 
+                       description: bookmark["description"],
                
                   );
               },

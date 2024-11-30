@@ -1,19 +1,9 @@
 import 'package:flutter/material.dart';
 
+
+
 class Profilescreen extends StatelessWidget {
   const Profilescreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SettingsScreen(),
-    );
-  }
-}
-
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

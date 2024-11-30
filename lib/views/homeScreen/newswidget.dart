@@ -1,4 +1,6 @@
+
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 import 'package:newsappp/views/selectednewsScreen/selectednewsScreeen.dart';
 
@@ -11,7 +13,7 @@ class newswidget extends StatelessWidget {
   required this.description,
   required this.image,
 
-     this.date,
+    required this.date,
         this.iccon,
         this.content,
         this.author,
@@ -26,9 +28,9 @@ class newswidget extends StatelessWidget {
   });
   final String title;
   final String description;
- final String? image;
+ final String image;
 
- final String ?date;
+ final String date;
   final Widget? iccon;
   final String ?content;
   final String? author;
@@ -61,17 +63,47 @@ class newswidget extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            height: 180,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              image: DecorationImage(
-                                fit: BoxFit.fill,
-                                image: NetworkImage(image??"null"),
-                              ),
-                            ),
-                          ),
+                         Container(
+                                 height: 180,
+                               width: double.infinity,
+                                     decoration: BoxDecoration(
+                                         color: Colors.grey.withOpacity(0.4),
+                                               borderRadius: BorderRadius.circular(15),
+                                                                                 ),
+                                          child: image != null && image.isNotEmpty
+                                                           ? ClipRRect(
+                                                       borderRadius: BorderRadius.circular(15),
+                                                              child: Image.network(
+                                                                            image,
+                                                                 fit: BoxFit.fill,
+                                                   errorBuilder: (context, error, stackTrace) =>  Center(
+                                                      child: Icon(
+                                                      Icons.broken_image,
+                                                              size: 50,
+                                                     color: Colors.black.withOpacity(0.5),
+                                                       ),
+                                                  ),
+                                       loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                             return const Center(
+                            child:  SizedBox(
+          width: 50,
+          height: 50,
+           child: LoadingIndicator(
+               indicatorType: Indicator.ballRotateChase, /// Required, The loading type of the widget
+               colors: const [Colors.black],       /// Optional, The color collections
+               strokeWidth: 2,                     /// Optional, The stroke of the line, only applicable to widget which contains line
+                   /// Optional, Background of the widget
+               pathBackgroundColor: Colors.blue  
+                /// Optional, the stroke backgroundColor
+           ),
+         ),
+                        );
+                         },
+                 ),
+             )
+      : SizedBox(),
+),
                           Text(
                            title,maxLines: 2,
                            
@@ -95,14 +127,16 @@ class newswidget extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                        
-                            
-                                 Text(date??"null",
-                               style: TextStyle(
-                                
-                                fontSize: 12,
-                                color: Colors.black.withOpacity(0.6),
-                                fontWeight: FontWeight.bold,
-                               ),),
+                              Text(
+                                (date )
+                                .length > 20 ? date.substring(0, 10,)  : date,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              color: Colors.grey,
+                             ),
+                                 maxLines: 1,
+                             ),
                                 
                              
                          

@@ -115,7 +115,8 @@ class _HomescreenState extends State<Homescreen> {
                pathBackgroundColor: Colors.blue  
                 /// Optional, the stroke backgroundColor
            ),
-         ))
+         )
+         )
           :
               Expanded(
                 child: homeScreenController.newsarticles.isEmpty

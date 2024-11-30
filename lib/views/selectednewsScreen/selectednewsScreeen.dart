@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
-import 'package:newsappp/controller/homeScreenController.dart';
+import 'package:loading_indicator/loading_indicator.dart';
+
 import 'package:newsappp/controller/selectedScreencontroller.dart';
 import 'package:newsappp/views/webview/webview.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +17,7 @@ class Selectednewsscreeen extends StatelessWidget {
   }): super(key: key);
 
 
-   final String?image;
+   final String image;
    final String title;
    final String description;
    final String content;
@@ -79,19 +80,66 @@ class Selectednewsscreeen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Container(
-                  height: 250,
+                child:
+                //  Container(
+                //   height: 250,
                  
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    image: DecorationImage(
-                      fit: BoxFit.fill,
-                      image: 
-                    NetworkImage(image??"nukl"))
-                  ),
-                ),
+                //   decoration: BoxDecoration(
+                //     borderRadius: BorderRadius.circular(15),
+                //     image: DecorationImage(
+                //       fit: BoxFit.fill,
+                //       image: 
+                //     NetworkImage(image??"nukl"))
+                //   ),
+                // ),
                 
-                
+                 Container(
+                                 height: 250,
+                               width: double.infinity,
+                                     decoration: BoxDecoration(
+                                         color: Colors.grey.withOpacity(0.4),
+                                               borderRadius: BorderRadius.circular(15),
+                                                                                 ),
+                                          child:  image.isNotEmpty
+                                                           ? ClipRRect(
+                                                       borderRadius: BorderRadius.circular(15),
+                                                              child: Image.network(
+                                                                          image,
+                                                                 fit: BoxFit.fill,
+                                                   errorBuilder: (context, error, stackTrace) =>  Center(
+                                                      child: Icon(
+                                                      Icons.broken_image,
+                                                              size: 50,
+                                                     color: Colors.black.withOpacity(0.5),
+                                                       ),
+                                                  ),
+                                       loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                             return const Center(
+                            child:  SizedBox(
+          width: 50,
+          height: 50,
+           child: LoadingIndicator(
+               indicatorType: Indicator.ballRotateChase, /// Required, The loading type of the widget
+               colors: const [Colors.black],       /// Optional, The color collections
+               strokeWidth: 2,                     /// Optional, The stroke of the line, only applicable to widget which contains line
+                   /// Optional, Background of the widget
+               pathBackgroundColor: Colors.blue  
+                /// Optional, the stroke backgroundColor
+           ),
+         ),
+                        );
+                         },
+                 ),
+             )
+      : Center(
+          child: Icon(
+            Icons.image_not_supported,
+            size: 50,
+            color: Colors.black.withOpacity(0.5),
+          ),
+        ),
+),
               ),
               
                
@@ -114,16 +162,20 @@ class Selectednewsscreeen extends StatelessWidget {
                 
               ),
               SizedBox(width: 10,),
-              Text(author,maxLines: 1,
-              style: TextStyle(
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
-                fontSize: 15.4,
-              ),),
-                 Icon(
+              Text(
+                                (author )
+                                .length > 20 ? author.substring(0, 20)  : author,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                              color: Colors.grey,
+                             ),
+                                 maxLines: 1,
+                             ),
+                                       Icon(
                                   Icons.check_circle,
                            color: Colors.blue,
-                              size: 17,
+                              size: 20,
                               ),
             ],
           ),
@@ -187,3 +239,11 @@ class Selectednewsscreeen extends StatelessWidget {
     );
   }
 }
+
+
+// CachedNetworkImage(
+//   imageUrl: image,
+//   placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+//   errorWidget: (context, url, error) => Icon(Icons.broken_image, size: 50, color: Colors.black.withOpacity(0.5)),
+//   fit: BoxFit.cover,
+// )

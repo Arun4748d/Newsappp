@@ -12,7 +12,7 @@ class WebViewScreen extends StatefulWidget {
 
 class _WebViewScreenState extends State<WebViewScreen> {
   late final WebViewController _controller;
-  bool isloading = false;
+
 
   @override
   void initState() {
@@ -26,6 +26,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
             print("Page loading: $url");
           },
           onPageFinished: (url) {
+           
             print("Page loaded: $url");
           },
           onNavigationRequest: (NavigationRequest request) {
@@ -55,7 +56,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
         ),
       ),
       body:
-      WebViewWidget(controller: _controller),// Embed WebView
+            WebViewWidget(controller: _controller),     
+
     );
   }
 }

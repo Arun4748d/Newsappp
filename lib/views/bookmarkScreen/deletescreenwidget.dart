@@ -24,8 +24,8 @@ class Deletescreenwidget extends StatelessWidget {
 
   });
   final String title;
-  final String description;
- final String? image;
+  final String? description;
+ final String image;
 
  final String ?date;
   final Widget? iccon;
@@ -52,24 +52,62 @@ class Deletescreenwidget extends StatelessWidget {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => Selectednewsscreeen(
                               image: image,
                                title: title,
-                                description: description, 
+                                description: description??"null", 
                               content:content??"null",
                                author: author??"null",
                                 onpress: InkWellbookmarked,
                                url:url.isNotEmpty ? url : "No URL available", 
                                onpress2: onpress2,  ),));
                           },
-                          child: Container(
-                            height: 180,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              image: DecorationImage(
-                                fit: BoxFit.fill,
-                                image: NetworkImage(image??"null"),
-                              ),
-                            ),
-                          ),
+                          child: 
+                          // Container(
+                          //   height: 180,
+                          //   width: double.infinity,
+                          //   decoration: BoxDecoration(
+                          //     borderRadius: BorderRadius.circular(15),
+                          //     image: DecorationImage(
+                          //       fit: BoxFit.fill,
+                          //       image: NetworkImage(image),
+                          //     ),
+                          //   ),
+                          // ),
+                            
+                 Container(
+                                 height: 180,
+                               width: double.infinity,
+                                     decoration: BoxDecoration(
+                                         color: Colors.grey.withOpacity(0.4),
+                                               borderRadius: BorderRadius.circular(15),
+                                                                                 ),
+                                          child:  image.isNotEmpty
+                                                           ? ClipRRect(
+                                                       borderRadius: BorderRadius.circular(15),
+                                                              child: Image.network(
+                                                                          image,
+                                                                 fit: BoxFit.fill,
+                                                   errorBuilder: (context, error, stackTrace) =>  Center(
+                                                      child: Icon(
+                                                      Icons.broken_image,
+                                                              size: 50,
+                                                     color: Colors.black.withOpacity(0.5),
+                                                       ),
+                                                  ),
+                                       loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                             return const Center(
+                            child: CircularProgressIndicator(),
+                        );
+                         },
+                 ),
+             )
+      : Center(
+          child: Icon(
+            Icons.image_not_supported,
+            size: 50,
+            color: Colors.black.withOpacity(0.5),
+          ),
+        ),
+),
                         ),
                         Text(
                          title,
@@ -80,15 +118,8 @@ class Deletescreenwidget extends StatelessWidget {
                           ),
                         ),  
                         Row(
-                          children: [
-                     
-                          
-                               Text(date??"null",
-                             style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                             ),),
+                          children: [                       
+                                
                                Spacer(),
                            
                             InkWell(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 
 
 import 'package:newsappp/views/selectednewsScreen/selectednewsScreeen.dart';
@@ -25,7 +26,7 @@ class latestnewswidget extends StatefulWidget {
   });
   final String title;
 
- final String? image;
+ final String image;
 
  final String date;
  
@@ -70,16 +71,47 @@ class _latestnewswidgetState extends State<latestnewswidget> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
-                                    child:  Image.network(
-                                            widget.image??"",
-                                            height: 150,
-                                            width: double.infinity,
-                                            fit: BoxFit.cover,
-                                          )
-                                       
-                                  ),
+                                Container(
+                                 height: 150,
+                               width: double.infinity,
+                                     decoration: BoxDecoration(
+                                         color: Colors.grey.withOpacity(0.4),
+                                               borderRadius: BorderRadius.circular(15),
+                                                                                 ),
+                                          child:  widget.image.isNotEmpty
+                                                           ? ClipRRect(
+                                                       borderRadius: BorderRadius.circular(15),
+                                                              child: Image.network(
+                                                                          widget .image,
+                                                                 fit: BoxFit.fill,
+                                                   errorBuilder: (context, error, stackTrace) =>  Center(
+                                                      child: Icon(
+                                                      Icons.broken_image,
+                                                              size: 50,
+                                                     color: Colors.black.withOpacity(0.5),
+                                                       ),
+                                                  ),
+                                       loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) return child;
+                             return const Center(
+                            child:  SizedBox(
+          width: 50,
+          height: 50,
+           child: LoadingIndicator(
+               indicatorType: Indicator.ballRotateChase, /// Required, The loading type of the widget
+               colors: const [Colors.black],       /// Optional, The color collections
+               strokeWidth: 2,                     /// Optional, The stroke of the line, only applicable to widget which contains line
+                   /// Optional, Background of the widget
+               pathBackgroundColor: Colors.blue  
+                /// Optional, the stroke backgroundColor
+           ),
+         ),
+                        );
+                         },
+                 ),
+             )
+      : SizedBox(),
+),
                                
                                   Text(
                                     widget.title,
@@ -94,15 +126,16 @@ class _latestnewswidgetState extends State<latestnewswidget> {
                                   SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Text(
-                                        widget.author,
-                                      style: TextStyle(
-                                fontSize: 15.4,
-                                color: Colors.black.withOpacity(0.6),
-                                fontWeight: FontWeight.w600,
-                               ),
-      
-                                      ),
+                                        Text(
+                                (widget.author )
+                                .length > 20 ? widget.author.substring(0, 20)  : widget.author,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                              color: Colors.grey,
+                             ),
+                                 maxLines: 1,
+                             ),
                                        Icon(
                                   Icons.check_circle,
                            color: Colors.blue,
@@ -113,12 +146,15 @@ class _latestnewswidgetState extends State<latestnewswidget> {
                                     ],
                                   ),
                                            Text(
-                                        widget.date,
-                                       style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black.withOpacity(0.5),
+                                (widget.date )
+                                .length > 20 ? widget.date.substring(0, 10,)  : widget.date,
+                              style: TextStyle(
+                                fontSize: 15,
                                 fontWeight: FontWeight.w500,
-                               ),),
+                              color: Colors.grey,
+                             ),
+                                 maxLines: 1,
+                             ),
       
                                 ],
                               ),
